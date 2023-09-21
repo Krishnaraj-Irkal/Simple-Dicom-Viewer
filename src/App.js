@@ -1,13 +1,10 @@
-import React from 'react';
-import './App.css';
-import DicomViewer from './DicomViewer'; // Import your DicomViewer component
+import React from "react";
+import DicomViewer from "./DicomViewer"; // Adjust the path to your component
 
 function App() {
   return (
     <div className="App">
-      <main>
-        <DicomViewer />
-      </main>
+      <DicomViewer />
     </div>
   );
 }

@@ -1,27 +1,35 @@
 import React, { useEffect, useRef } from "react";
-import * as cornerstone from "cornerstone-core";
+import cornerstone from "cornerstone-core";
+import * as cornerstoneMath from "cornerstone-math";
 import dicomParser from "dicom-parser";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
+import * as cornerstoneTools from "cornerstone-tools";
+import Hammer from "hammerjs";
 
-// Configure the WADO image loader
+// Externals
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.Hammer = Hammer;
 
-cornerstoneWADOImageLoader.webWorkerManager.initialize({
-  webWorkerPath: "/codecs/cornerstoneWADOImageLoaderWebWorker.js",
-  taskConfiguration: {
-    decodeTask: {
-      codecsPath: "/codecs/cornerstoneWADOImageLoaderCodecs.js",
+// WadoImageLoader Registration/Config
+if (!cornerstoneWADOImageLoader.initialized) {
+  const config = {
+    webWorkerPath: "/codecs/cornerstoneWADOImageLoaderWebWorker.js",
+    taskConfiguration: {
+      decodeTask: {
+        codecsPath: "/codecs/cornerstoneWADOImageLoaderCodecs.js",
+      },
     },
-  },
-});
+  };
+  cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
+  cornerstoneWADOImageLoader.initialized = true;
+}
 
 function DicomViewer() {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  // Declare a variable to track if the component is mounted
-  const isMountedRef = useRef(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,64 +39,80 @@ function DicomViewer() {
       renderer: "webgl",
     });
 
-    // Handle resizing of the canvas when the window size changes
-    const handleResize = () => {
-      cornerstone.resize(canvas);
-    };
+    // Grab Tool Classes
+    const WwwcTool = cornerstoneTools.WwwcTool;
+    const PanTool = cornerstoneTools.PanTool;
+    const PanMultiTouchTool = cornerstoneTools.PanMultiTouchTool;
+    const ZoomTool = cornerstoneTools.ZoomTool;
+    const ZoomTouchPinchTool = cornerstoneTools.ZoomTouchPinchTool;
+    const ZoomMouseWheelTool = cornerstoneTools.ZoomMouseWheelTool;
 
-    window.addEventListener("resize", handleResize);
+    // Add them
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.addTool(ZoomTool);
+    cornerstoneTools.addTool(WwwcTool);
+    cornerstoneTools.addTool(PanMultiTouchTool);
+    cornerstoneTools.addTool(ZoomTouchPinchTool);
+    cornerstoneTools.addTool(ZoomMouseWheelTool);
 
-    const handleFileChange = async (e) => {
-      const file = e.target.files[0];
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const fileData = event.target.result;
-          const byteArray = new Uint8Array(fileData);
-          const blob = new Blob([byteArray]);
-          const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
-
-          if (isMountedRef.current) {
-            // Check if the component is still mounted before displaying the image
-            await cornerstone.loadImage(imageId)
-              .then((image) => {
-                cornerstone.displayImage(canvas, image);
-
-                // Fit the image to the viewport
-                cornerstone.fitToWindow(canvas);
-              })
-              .catch((error) => {
-                console.error("Error loading or displaying image:", error);
-              });
-          }
-        };
-
-        reader.readAsArrayBuffer(file);
-      }
-    };
-
-    fileInputRef.current.addEventListener("change", handleFileChange);
-
-    return () => {
-      // Clean up event listeners and disable Cornerstone on unmount
-      window.removeEventListener("resize", handleResize);
-      fileInputRef.current.removeEventListener("change", handleFileChange);
-      cornerstone.disable(canvas);
-    };
+    // Set tool modes
+    cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 4 }); // Middle
+    cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 2 }); // Right
+    cornerstoneTools.setToolActive("Wwwc", { mouseButtonMask: 1 }); // Left & Touch
+    cornerstoneTools.setToolActive("PanMultiTouch", {});
+    cornerstoneTools.setToolActive("ZoomMouseWheel", {});
+    cornerstoneTools.setToolActive("ZoomTouchPinch", {});
   }, []);
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+  
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const fileData = event.target.result;
+        const blob = new Blob([fileData]);
+        const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
+  
+        await cornerstone.loadImage(imageId)
+          .then((image) => {
+            // Retrieve image dimensions
+            console.log(image);
+            const width = image.width;
+            const height = image.height;
+  
+            // Set the canvas size to match the image dimensions
+            const canvas = canvasRef.current;
+            console.log(canvas);
+            canvas.width = width;
+            canvas.height = height;
+            console.log(canvas);
+            cornerstone.displayImage(canvas, image);
+          })
+          .catch((error) => {
+            console.error("Error loading or displaying image:", error);
+          });
+      };
+  
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+  // const canvasStyle = {
+  //   width: "100%",
+  //   height: "500px",
+  // };
+
   return (
-    <div>
-      <h2>Simple Example Viewer</h2>
-      <input type="file" accept=".dcm" ref={fileInputRef} />
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <canvas
-          ref={canvasRef}
-          style={{ maxWidth: "100%", maxHeight: "80vh", border: '2px solid black' }}
-        />
-      </div>
-    </div>
+    <main>
+      <input
+        type="file"
+        accept=".dcm"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+      />
+      <div ref={canvasRef}></div>
+    </main>
   );
 }
 
