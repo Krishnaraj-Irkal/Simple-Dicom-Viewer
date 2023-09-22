@@ -1,5 +1,6 @@
 import React from "react";
-import DicomViewer from "./DicomViewer"; // Adjust the path to your component
+import DicomViewer from "./DicomViewer";
+import DicomViewerOther from "./DicomeVieweOther";
 
 function App() {
   return (
