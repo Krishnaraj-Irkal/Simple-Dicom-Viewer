@@ -3,11 +3,11 @@ import cornerstone from "cornerstone-core";
 // import * as cornerstoneMath from "cornerstone-math";
 import dicomParser from "dicom-parser";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-// import * as cornerstoneTools from "cornerstone-tools";
+// import * as cornerstoneTools from "cornerstonejs/tools";
 // import Hammer from "hammerjs";
 
-import "./DicomViewer.css"; // Import CSS for styling
-
+// import "./DicomViewer.css"; // Import CSS for styling
+// console.log(corne/rstoneTools);
 // Externals
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
@@ -40,7 +40,6 @@ function DicomViewer() {
     cornerstone.enable(canvas, {
       renderer: "webgl",
     });
-
   }, []);
 
   const handleFileChange = async (e) => {
@@ -51,9 +50,11 @@ function DicomViewer() {
       reader.onload = async (event) => {
         const fileData = event.target.result;
         const blob = new Blob([fileData]);
-        const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
+        const imageId =
+          cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
 
-        await cornerstone.loadImage(imageId)
+        await cornerstone
+          .loadImage(imageId)
           .then((image) => {
             // Retrieve image dimensions
             const width = image.width;
@@ -89,7 +90,7 @@ function DicomViewer() {
         onChange={handleFileChange}
         className="file-input"
       />
-      <div ref={canvasRef} style={{width:"800px", height:"600px"}}></div>
+      <div ref={canvasRef} style={{ width: "800px", height: "600px" }}></div>
     </div>
   );
 }
