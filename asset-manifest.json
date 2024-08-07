@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Simple-Dicom-Viewer/static/css/main.1d5c8163.css",
+    "main.js": "/Simple-Dicom-Viewer/static/js/main.01ce4d16.js",
+    "static/js/787.16dce398.chunk.js": "/Simple-Dicom-Viewer/static/js/787.16dce398.chunk.js",
+    "index.html": "/Simple-Dicom-Viewer/index.html",
+    "main.1d5c8163.css.map": "/Simple-Dicom-Viewer/static/css/main.1d5c8163.css.map",
+    "main.01ce4d16.js.map": "/Simple-Dicom-Viewer/static/js/main.01ce4d16.js.map",
+    "787.16dce398.chunk.js.map": "/Simple-Dicom-Viewer/static/js/787.16dce398.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1d5c8163.css",
+    "static/js/main.01ce4d16.js"
+  ]
+}
