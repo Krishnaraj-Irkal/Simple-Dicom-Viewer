@@ -53,7 +53,6 @@ export default function DicomMultiframeViewer() {
   const loadAndViewImage = (file) => {
     const element = document.getElementById("dicomImage");
     const url = URL.createObjectURL(file);
-    // Call your loadAndViewImage function here with the file or pass it to another component if needed
     console.log("Loading and viewing DICOM file:", file.name, url);
     cornerstoneWADOImageLoader.wadouri.dataSetCacheManager
       .load(url, cornerstoneWADOImageLoader.internal.xhrRequest)
@@ -126,7 +125,7 @@ export default function DicomMultiframeViewer() {
                 className="form-control"
                 type="file"
                 id="dicomFile"
-                accept=".dcm"
+                accept=".dcm,.dicom"
                 onChange={handleFileSelect} // Attach onChange event listener
               />
             </div>
