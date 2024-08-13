@@ -69,8 +69,8 @@ const NiftiViewer = () => {
     };
 
     loadAndDisplayImage(viewerZRef.current, `${imageId}`);
-    // loadAndDisplayImage(viewerXRef.current, `${imageId}`, "x");
-    // loadAndDisplayImage(viewerYRef.current, `${imageId}`, "y");
+    loadAndDisplayImage(viewerXRef.current, `${imageId}`, "x");
+    loadAndDisplayImage(viewerYRef.current, `${imageId}`, "y");
   };
 
   const changeFrame = (dimension, step) => {
