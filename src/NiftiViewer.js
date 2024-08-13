@@ -68,7 +68,7 @@ const NiftiViewer = () => {
       });
     };
 
-    loadAndDisplayImage(viewerZRef.current, `${imageId}`);
+    loadAndDisplayImage(viewerZRef.current, `${imageId}`, "z");
     loadAndDisplayImage(viewerXRef.current, `${imageId}`, "x");
     loadAndDisplayImage(viewerYRef.current, `${imageId}`, "y");
   };
